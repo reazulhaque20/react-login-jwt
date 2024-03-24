@@ -11,7 +11,7 @@ export default function Login(){
     const userRef = useRef();
     const errRef = useRef();
 
-    const[user, setUser] = useState('');
+    const[email, setEmail] = useState('');
     const[password, setPassword] = useState('');
     const[errMsg, setErrMsg] = useState('');
     const[success, setSuccess] = useState(false);
@@ -22,14 +22,14 @@ export default function Login(){
 
     useEffect(() => {
         setErrMsg('');
-    },[user, password]);
+    },[email, password]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try{
             const response = await axios.post(
                 LOGIN_URL,
-                JSON.stringify({user, password}),
+                JSON.stringify({email: email, password: password}),
                 {
                     headers: {'Content-Type': 'application/json'},
                     withCredentials: true
@@ -37,18 +37,18 @@ export default function Login(){
             );
 
             console.log(JSON.stringify(response.data));
-            const accessToken = response.data.accessToken;
-            const roles = response.data.roles;
-            setAuth(user, password, roles, accessToken);
+            const accessToken = response.data.access_token;
+            const roles = response.data.role;
+            setAuth(email, password, roles, accessToken);
 
-            setUser('');
+            setEmail('');
             setPassword('');
             setSuccess(true);
         }catch(error){
             if(!error.response){
                 setErrMsg('No Server Response');
             }else if(error.response.status === 400){
-                setErrMsg('Missing User name or Password');
+                setErrMsg('Missing Email or Password');
             }else if(error.response.status === 401){
                 setErrMsg('Unauthorized');
             }else{
@@ -74,12 +74,12 @@ export default function Login(){
             <p ref={errRef} className={errMsg ? "errMsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
             <h1>Login</h1>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">UserName:</label>
-                <input type="text" id="username" 
+                <label htmlFor="email">Email:</label>
+                <input type="text" id="email" 
                     ref={userRef}
                     autoComplete="off"
-                    onChange={(e) => setUser(e.target.value)}
-                    value={user}
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
                     required
                 />
                 <label htmlFor="password">Password:</label>
